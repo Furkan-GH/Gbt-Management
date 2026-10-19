@@ -11,36 +11,24 @@ import {
 } from "lucide-react";
 import { useAppData } from "@/lib/store";
 import { GUNLER } from "@/lib/types";
+import { ayAnahtari, aylikAidatlar, DURUM_ETIKETI, DURUM_RENGI } from "@/lib/aidat";
 import StatCard from "@/components/StatCard";
 import Badge from "@/components/Badge";
 
-function buAyAnahtari() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
-
 export default function Panel() {
-  const { ogrenciler, ogretmenler, siniflar, odemeler } = useAppData();
+  const { ogrenciler, ogretmenler, siniflar, aidatOdemeleri } = useAppData();
 
-  const ay = buAyAnahtari();
+  const ay = ayAnahtari();
   const bugunGun = GUNLER[(new Date().getDay() + 6) % 7];
 
   const aktifOgrenciler = ogrenciler.filter((o) => o.durum === "aktif");
 
-  const buAyOdemeleri = useMemo(
-    () => odemeler.filter((o) => o.ay === ay),
-    [odemeler, ay]
-  );
-
   const bekleyenOdemeler = useMemo(
-    () =>
-      buAyOdemeleri.filter(
-        (o) => o.durum === "ödenmedi" || o.durum === "gecikmiş"
-      ),
-    [buAyOdemeleri]
+    () => aylikAidatlar(ogrenciler, aidatOdemeleri, ay).filter((s) => s.kalan > 0),
+    [ogrenciler, aidatOdemeleri, ay]
   );
 
-  const bekleyenTutar = bekleyenOdemeler.reduce((t, o) => t + o.tutar, 0);
+  const bekleyenTutar = bekleyenOdemeler.reduce((t, s) => t + s.kalan, 0);
 
   const bugunkuDersler = useMemo(() => {
     const liste: { sinifAdi: string; baslangic: string; bitis: string; ogretmen: string }[] = [];
@@ -141,11 +129,11 @@ export default function Panel() {
             </p>
           ) : (
             <ul className="flex flex-col gap-2">
-              {bekleyenOdemeler.slice(0, 6).map((odeme) => {
-                const ogrenci = ogrenciler.find((o) => o.id === odeme.ogrenciId);
+              {bekleyenOdemeler.slice(0, 6).map((satir) => {
+                const ogrenci = ogrenciler.find((o) => o.id === satir.ogrenciId);
                 return (
                   <li
-                    key={odeme.id}
+                    key={satir.ogrenciId}
                     className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm"
                   >
                     <span className="font-medium text-slate-800">
@@ -153,15 +141,15 @@ export default function Panel() {
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-slate-500">
-                        {odeme.tutar.toLocaleString("tr-TR")} ₺
+                        {satir.kalan.toLocaleString("tr-TR")} ₺
                       </span>
-                      <Badge renk={odeme.durum === "gecikmiş" ? "kirmizi" : "sari"}>
-                        {odeme.durum === "gecikmiş" ? (
+                      <Badge renk={DURUM_RENGI[satir.durum]}>
+                        {satir.durum === "gecikmiş" ? (
                           <span className="flex items-center gap-1">
                             <AlertTriangle className="h-3 w-3" /> Gecikmiş
                           </span>
                         ) : (
-                          "Ödenmedi"
+                          DURUM_ETIKETI[satir.durum]
                         )}
                       </Badge>
                     </div>

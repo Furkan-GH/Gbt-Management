@@ -53,13 +53,35 @@ export type Ogrenci = {
   kayitTarihi: string; // yyyy-mm-dd
 };
 
-export type OdemeDurumu = "ödendi" | "ödenmedi" | "gecikmiş";
-
-export type Odeme = {
+// Supabase'deki fee_payments satırı. Bir ay için birden fazla (kısmi) ödeme olabilir.
+export type AidatOdemesi = {
   id: string;
   ogrenciId: string;
   ay: string; // "2026-10"
   tutar: number;
-  durum: OdemeDurumu;
-  odemeTarihi: string | null; // yyyy-mm-dd
+  odemeTarihi: string; // yyyy-mm-dd
+  not: string | null;
+};
+
+// Supabase'deki staff_payments satırı.
+export type PersonelOdemesi = {
+  id: string;
+  ogretmenId: string;
+  ay: string; // "2026-10"
+  tutar: number;
+  odemeTarihi: string; // yyyy-mm-dd
+  not: string | null;
+};
+
+export type AidatDurumu = "ödendi" | "kısmi" | "ödenmedi" | "gecikmiş";
+
+// Bir öğrencinin bir aydaki aidat özeti; ödemelerden hesaplanır, veritabanında tutulmaz.
+export type AylikAidat = {
+  ogrenciId: string;
+  ay: string;
+  beklenen: number;
+  odenen: number;
+  kalan: number;
+  durum: AidatDurumu;
+  odemeler: AidatOdemesi[];
 };

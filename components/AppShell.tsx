@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Banknote,
   CalendarClock,
   LayoutDashboard,
   type LucideIcon,
   UserCog,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useAppData } from "@/lib/store";
 
 type NavItem = {
   href: string;
@@ -24,10 +27,12 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/ogretmenler", label: "Öğretmenler", icon: UserCog },
   { href: "/siniflar", label: "Sınıflar", icon: CalendarClock },
   { href: "/aidatlar", label: "Aidatlar", icon: Wallet },
+  { href: "/maaslar", label: "Maaşlar", icon: Banknote },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { yukleniyor, hata, hatayiKapat } = useAppData();
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -64,7 +69,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="border-t border-slate-200 p-4 text-xs text-slate-400">
-          Veriler bu tarayıcıda saklanır (demo modu)
+          Veriler Supabase&apos;de saklanır
         </div>
       </aside>
 
@@ -80,7 +85,19 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <main className="pb-20 md:ml-64 md:pb-8">
         <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
-          {children}
+          {hata && (
+            <div className="mb-4 flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <span>{hata}</span>
+              <button onClick={hatayiKapat} aria-label="Kapat" className="shrink-0">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          {yukleniyor ? (
+            <p className="py-12 text-center text-sm text-slate-400">Yükleniyor...</p>
+          ) : (
+            children
+          )}
         </div>
       </main>
 
@@ -95,7 +112,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium ${
+              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium ${
                 active ? "text-indigo-600" : "text-slate-500"
               }`}
             >

@@ -53,7 +53,7 @@ export default function OgretmenlerSayfasi() {
   }
 
   function sil(ogretmen: Ogretmen) {
-    if (confirm(`${ogretmen.adSoyad} silinsin mi?`)) {
+    if (confirm(`${ogretmen.adSoyad} ve tüm maaş ödemesi kayıtları silinsin mi?`)) {
       ogretmenSil(ogretmen.id);
     }
   }

@@ -77,7 +77,7 @@ export default function OgrencilerSayfasi() {
   }
 
   function sil(ogrenci: Ogrenci) {
-    if (confirm(`${ogrenci.adSoyad} silinsin mi?`)) {
+    if (confirm(`${ogrenci.adSoyad} ve tüm aidat ödemesi kayıtları silinsin mi?`)) {
       ogrenciSil(ogrenci.id);
     }
   }
